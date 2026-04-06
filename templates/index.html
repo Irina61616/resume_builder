@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создатель резюме | Красивое CV</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Создайте профессиональное резюме</h1>
+            <p>Заполните форму — получите красивое CV в PDF</p>
+        </div>
+
+        <div class="form-card">
+            <form id="resumeForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Имя *</label>
+                        <input type="text" id="name" required placeholder="Алексей">
+                    </div>
+                    <div class="form-group">
+                        <label>Фамилия *</label>
+                        <input type="text" id="surname" required placeholder="Иванов">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Опыт работы</label>
+                    <textarea id="experience" rows="3" placeholder="Компания: ООО «ТехноСофт»&#10;Период: 2020–настоящее время&#10;Должность: Senior Developer&#10;Обязанности: Разработка веб-приложений, руководство командой из 5 человек"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Навыки (через запятую)</label>
+                    <input type="text" id="skills" placeholder="Python, JavaScript, React, SQL, Docker">
+                </div>
+
+                <div class="form-group">
+                    <label>Образование</label>
+                    <textarea id="education" rows="2" placeholder="МГУ им. Ломоносова, факультет ВМК, 2015–2020&#10;Специальность: Прикладная математика и информатика"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Языки (через запятую)</label>
+                    <input type="text" id="languages" placeholder="Русский (родной), Английский (C1), Немецкий (B1)">
+                </div>
+
+                <div class="form-group">
+                    <label>Контактная информация</label>
+                    <textarea id="contact" rows="2" placeholder="📞 +7 (999) 123-45-67&#10;✉️ alexey.ivanov@example.com&#10;🔗 linkedin.com/in/alexey-ivanov"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Фото профиля</label>
+                    <input type="file" id="photo" accept="image/jpeg,image/png,image/jpg">
+                    <div class="photo-preview" id="photoPreview"></div>
+                </div>
+
+                <button type="submit" class="btn-generate">
+                    <span>🎯</span> Сгенерировать резюме и скачать PDF
+                </button>
+            </form>
+        </div>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Генерируем ваше резюме...</p>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
