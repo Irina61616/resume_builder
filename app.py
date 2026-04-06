@@ -10,11 +10,6 @@ app = Flask(__name__)
 CORS(app)
 
 class PDF(FPDF):
-    def __init__(self):
-        super().__init__()
-        self.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
-        self.add_font('DejaVu', 'B', 'DejaVuSansCondensed-Bold.ttf', uni=True)
-        
     def header(self):
         self.set_y(15)
         self.set_draw_color(102, 126, 234)
@@ -27,7 +22,7 @@ class PDF(FPDF):
         self.set_line_width(0.5)
         self.line(20, self.get_y(), 190, self.get_y())
         self.set_y(-15)
-        self.set_font('DejaVu', '', 8)
+        self.set_font('Helvetica', '', 8)
         self.set_text_color(150, 150, 150)
         self.cell(0, 10, 'Created with CV Builder | Page ' + str(self.page_no()), 0, 0, 'C')
 
@@ -68,16 +63,20 @@ def generate_pdf():
                 pass
         
         pdf.set_y(85)
-        pdf.set_font('DejaVu', 'B', 14)
+        pdf.set_font('Helvetica', 'B', 14)
         pdf.set_text_color(60, 60, 80)
         pdf.set_x(25)
-        pdf.cell(45, 8, data.get('name', '')[:30], 0, 1, 'C')
+        
+        name_text = data.get('name', '')[:30]
+        surname_text = data.get('surname', '')[:30]
+        
+        pdf.cell(45, 8, name_text, 0, 1, 'C')
         pdf.set_x(25)
-        pdf.cell(45, 8, data.get('surname', '')[:30], 0, 1, 'C')
+        pdf.cell(45, 8, surname_text, 0, 1, 'C')
         
         if data.get('contact'):
             pdf.set_y(110)
-            pdf.set_font('DejaVu', 'B', 9)
+            pdf.set_font('Helvetica', 'B', 9)
             pdf.set_text_color(80, 80, 100)
             pdf.set_x(25)
             pdf.cell(45, 6, "CONTACTS", 0, 1, 'C')
@@ -86,17 +85,17 @@ def generate_pdf():
             pdf.line(30, pdf.get_y(), 65, pdf.get_y())
             pdf.ln(3)
             
-            pdf.set_font('DejaVu', '', 8)
+            pdf.set_font('Helvetica', '', 8)
             pdf.set_text_color(80, 80, 80)
             contact_lines = data['contact'].split('\n')
-            for i, line in enumerate(contact_lines[:5]):
+            for line in contact_lines[:5]:
                 if line.strip():
                     pdf.set_x(25)
                     pdf.multi_cell(45, 5, line.strip()[:40], 0, 'L')
                     pdf.ln(1)
         
         if data.get('skills'):
-            pdf.set_font('DejaVu', 'B', 9)
+            pdf.set_font('Helvetica', 'B', 9)
             pdf.set_text_color(80, 80, 100)
             pdf.set_x(25)
             pdf.cell(45, 6, "SKILLS", 0, 1, 'C')
@@ -104,7 +103,7 @@ def generate_pdf():
             pdf.line(30, pdf.get_y(), 65, pdf.get_y())
             pdf.ln(3)
             
-            pdf.set_font('DejaVu', '', 8)
+            pdf.set_font('Helvetica', '', 8)
             pdf.set_text_color(80, 80, 80)
             skills = [s.strip() for s in data['skills'].split(',') if s.strip()]
             for skill in skills[:8]:
@@ -115,7 +114,7 @@ def generate_pdf():
                 pdf.ln(1)
         
         if data.get('languages'):
-            pdf.set_font('DejaVu', 'B', 9)
+            pdf.set_font('Helvetica', 'B', 9)
             pdf.set_text_color(80, 80, 100)
             pdf.set_x(25)
             pdf.cell(45, 6, "LANGUAGES", 0, 1, 'C')
@@ -123,7 +122,7 @@ def generate_pdf():
             pdf.line(30, pdf.get_y(), 65, pdf.get_y())
             pdf.ln(3)
             
-            pdf.set_font('DejaVu', '', 8)
+            pdf.set_font('Helvetica', '', 8)
             pdf.set_text_color(80, 80, 80)
             langs = [l.strip() for l in data['languages'].split(',') if l.strip()]
             for lang in langs[:5]:
@@ -137,7 +136,7 @@ def generate_pdf():
         pdf.rect(85, 20, 105, 4, 'F')
         
         pdf.set_y(30)
-        pdf.set_font('DejaVu', 'B', 24)
+        pdf.set_font('Helvetica', 'B', 24)
         pdf.set_text_color(50, 50, 70)
         pdf.set_x(90)
         pdf.cell(0, 12, "PROFESSIONAL", 0, 1, 'L')
@@ -150,7 +149,7 @@ def generate_pdf():
         pdf.ln(8)
         
         if data.get('experience') and data['experience'].strip():
-            pdf.set_font('DejaVu', 'B', 12)
+            pdf.set_font('Helvetica', 'B', 12)
             pdf.set_text_color(102, 126, 234)
             pdf.set_x(90)
             pdf.cell(0, 8, "WORK EXPERIENCE", 0, 1, 'L')
@@ -159,7 +158,7 @@ def generate_pdf():
             pdf.line(90, pdf.get_y() + 2, 190, pdf.get_y() + 2)
             pdf.ln(4)
             
-            pdf.set_font('DejaVu', '', 10)
+            pdf.set_font('Helvetica', '', 10)
             pdf.set_text_color(60, 60, 60)
             pdf.set_x(92)
             experience_text = data['experience']
@@ -171,7 +170,7 @@ def generate_pdf():
             pdf.ln(4)
         
         if data.get('education') and data['education'].strip():
-            pdf.set_font('DejaVu', 'B', 12)
+            pdf.set_font('Helvetica', 'B', 12)
             pdf.set_text_color(102, 126, 234)
             pdf.set_x(90)
             pdf.cell(0, 8, "EDUCATION", 0, 1, 'L')
@@ -179,7 +178,7 @@ def generate_pdf():
             pdf.line(90, pdf.get_y() + 2, 190, pdf.get_y() + 2)
             pdf.ln(4)
             
-            pdf.set_font('DejaVu', '', 10)
+            pdf.set_font('Helvetica', '', 10)
             pdf.set_text_color(60, 60, 60)
             pdf.set_x(92)
             education_text = data['education']
