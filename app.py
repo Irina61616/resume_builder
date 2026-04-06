@@ -5,7 +5,6 @@ import os
 from fpdf import FPDF
 from datetime import datetime
 import traceback
-from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)
@@ -30,7 +29,7 @@ class PDF(FPDF):
         self.set_y(-15)
         self.set_font('DejaVu', '', 8)
         self.set_text_color(150, 150, 150)
-        self.cell(0, 10, f'Создано с помощью CV Builder | Страница {self.page_no()}', 0, 0, 'C')
+        self.cell(0, 10, 'Created with CV Builder | Page ' + str(self.page_no()), 0, 0, 'C')
 
 @app.route('/')
 def index():
@@ -42,9 +41,9 @@ def generate_pdf():
         data = request.json
         
         if not data.get('name') or not data.get('name').strip():
-            return jsonify({'success': False, 'errors': ['Имя обязательно']}), 400
+            return jsonify({'success': False, 'errors': ['Name is required']}), 400
         if not data.get('surname') or not data.get('surname').strip():
-            return jsonify({'success': False, 'errors': ['Фамилия обязательна']}), 400
+            return jsonify({'success': False, 'errors': ['Surname is required']}), 400
         
         pdf = PDF()
         pdf.add_page()
@@ -56,14 +55,15 @@ def generate_pdf():
         if data.get('photo') and data['photo'].startswith('data:image'):
             try:
                 img_data = base64.b64decode(data['photo'].split(',')[1])
-                img_path = 'temp_photo.jpg'
-                with open(img_path, 'wb') as f:
-                    f.write(img_data)
-                pdf.image(img_path, x=30, y=35, w=35, h=35)
-                pdf.set_draw_color(102, 126, 234)
-                pdf.set_line_width(1.5)
-                pdf.ellipse(30, 35, 35, 35)
-                os.remove(img_path)
+                if len(img_data) < 5 * 1024 * 1024:
+                    img_path = 'temp_photo.jpg'
+                    with open(img_path, 'wb') as f:
+                        f.write(img_data)
+                    pdf.image(img_path, x=30, y=35, w=35, h=35)
+                    pdf.set_draw_color(102, 126, 234)
+                    pdf.set_line_width(1.5)
+                    pdf.ellipse(30, 35, 35, 35)
+                    os.remove(img_path)
             except:
                 pass
         
@@ -71,16 +71,16 @@ def generate_pdf():
         pdf.set_font('DejaVu', 'B', 14)
         pdf.set_text_color(60, 60, 80)
         pdf.set_x(25)
-        pdf.cell(45, 8, f"{data.get('name', '')}", 0, 1, 'C')
+        pdf.cell(45, 8, data.get('name', '')[:30], 0, 1, 'C')
         pdf.set_x(25)
-        pdf.cell(45, 8, f"{data.get('surname', '')}", 0, 1, 'C')
+        pdf.cell(45, 8, data.get('surname', '')[:30], 0, 1, 'C')
         
         if data.get('contact'):
             pdf.set_y(110)
             pdf.set_font('DejaVu', 'B', 9)
             pdf.set_text_color(80, 80, 100)
             pdf.set_x(25)
-            pdf.cell(45, 6, "КОНТАКТЫ", 0, 1, 'C')
+            pdf.cell(45, 6, "CONTACTS", 0, 1, 'C')
             pdf.set_draw_color(102, 126, 234)
             pdf.set_line_width(0.5)
             pdf.line(30, pdf.get_y(), 65, pdf.get_y())
@@ -89,16 +89,17 @@ def generate_pdf():
             pdf.set_font('DejaVu', '', 8)
             pdf.set_text_color(80, 80, 80)
             contact_lines = data['contact'].split('\n')
-            for line in contact_lines[:5]:
-                pdf.set_x(25)
-                pdf.multi_cell(45, 5, line[:40], 0, 'L')
-                pdf.ln(1)
+            for i, line in enumerate(contact_lines[:5]):
+                if line.strip():
+                    pdf.set_x(25)
+                    pdf.multi_cell(45, 5, line.strip()[:40], 0, 'L')
+                    pdf.ln(1)
         
         if data.get('skills'):
             pdf.set_font('DejaVu', 'B', 9)
             pdf.set_text_color(80, 80, 100)
             pdf.set_x(25)
-            pdf.cell(45, 6, "НАВЫКИ", 0, 1, 'C')
+            pdf.cell(45, 6, "SKILLS", 0, 1, 'C')
             pdf.set_draw_color(102, 126, 234)
             pdf.line(30, pdf.get_y(), 65, pdf.get_y())
             pdf.ln(3)
@@ -108,7 +109,7 @@ def generate_pdf():
             skills = [s.strip() for s in data['skills'].split(',') if s.strip()]
             for skill in skills[:8]:
                 pdf.set_x(28)
-                pdf.cell(3, 5, "▹", 0, 0)
+                pdf.cell(3, 5, ">", 0, 0)
                 pdf.set_x(35)
                 pdf.multi_cell(35, 5, skill[:30], 0, 'L')
                 pdf.ln(1)
@@ -117,7 +118,7 @@ def generate_pdf():
             pdf.set_font('DejaVu', 'B', 9)
             pdf.set_text_color(80, 80, 100)
             pdf.set_x(25)
-            pdf.cell(45, 6, "ЯЗЫКИ", 0, 1, 'C')
+            pdf.cell(45, 6, "LANGUAGES", 0, 1, 'C')
             pdf.set_draw_color(102, 126, 234)
             pdf.line(30, pdf.get_y(), 65, pdf.get_y())
             pdf.ln(3)
@@ -127,7 +128,7 @@ def generate_pdf():
             langs = [l.strip() for l in data['languages'].split(',') if l.strip()]
             for lang in langs[:5]:
                 pdf.set_x(28)
-                pdf.cell(3, 5, "▹", 0, 0)
+                pdf.cell(3, 5, ">", 0, 0)
                 pdf.set_x(35)
                 pdf.multi_cell(35, 5, lang[:25], 0, 'L')
                 pdf.ln(1)
@@ -139,20 +140,20 @@ def generate_pdf():
         pdf.set_font('DejaVu', 'B', 24)
         pdf.set_text_color(50, 50, 70)
         pdf.set_x(90)
-        pdf.cell(0, 12, "ПРОФЕССИОНАЛЬНОЕ", 0, 1, 'L')
+        pdf.cell(0, 12, "PROFESSIONAL", 0, 1, 'L')
         pdf.set_x(90)
-        pdf.cell(0, 12, "РЕЗЮМЕ", 0, 1, 'L')
+        pdf.cell(0, 12, "RESUME", 0, 1, 'L')
         
         pdf.set_draw_color(102, 126, 234)
         pdf.set_line_width(1)
         pdf.line(90, pdf.get_y() + 2, 190, pdf.get_y() + 2)
         pdf.ln(8)
         
-        if data.get('experience'):
+        if data.get('experience') and data['experience'].strip():
             pdf.set_font('DejaVu', 'B', 12)
             pdf.set_text_color(102, 126, 234)
             pdf.set_x(90)
-            pdf.cell(0, 8, "💼 ОПЫТ РАБОТЫ", 0, 1, 'L')
+            pdf.cell(0, 8, "WORK EXPERIENCE", 0, 1, 'L')
             pdf.set_draw_color(102, 126, 234)
             pdf.set_line_width(0.5)
             pdf.line(90, pdf.get_y() + 2, 190, pdf.get_y() + 2)
@@ -169,11 +170,11 @@ def generate_pdf():
                     pdf.ln(1)
             pdf.ln(4)
         
-        if data.get('education'):
+        if data.get('education') and data['education'].strip():
             pdf.set_font('DejaVu', 'B', 12)
             pdf.set_text_color(102, 126, 234)
             pdf.set_x(90)
-            pdf.cell(0, 8, "🎓 ОБРАЗОВАНИЕ", 0, 1, 'L')
+            pdf.cell(0, 8, "EDUCATION", 0, 1, 'L')
             pdf.set_draw_color(102, 126, 234)
             pdf.line(90, pdf.get_y() + 2, 190, pdf.get_y() + 2)
             pdf.ln(4)
@@ -188,16 +189,6 @@ def generate_pdf():
                     pdf.multi_cell(93, 6, line.strip(), 0, 'L')
                     pdf.ln(1)
             pdf.ln(4)
-        
-        if not data.get('experience') and not data.get('education'):
-            pdf.set_font('DejaVu', '', 11)
-            pdf.set_text_color(120, 120, 140)
-            pdf.set_x(90)
-            pdf.cell(0, 8, "Заполните информацию о вашем", 0, 1, 'L')
-            pdf.set_x(90)
-            pdf.cell(0, 8, "опыте работы и образовании", 0, 1, 'L')
-            pdf.set_x(90)
-            pdf.cell(0, 8, "чтобы сделать резюме полным", 0, 1, 'L')
         
         filename = f"resume_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         pdf.output(filename)
